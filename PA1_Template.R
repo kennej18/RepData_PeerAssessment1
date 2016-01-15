@@ -1,4 +1,4 @@
-#Loading and preprocessing the data
+#Loading and preprocessing of all data
 data <- read.csv("activity.csv")
 
 #What is mean total number of steps taken per day?
@@ -39,16 +39,18 @@ mean(total_steps)
 median(total_steps)
 
 #Are there differences in activity patterns between weekdays and weekends?
-days <- weekdays(filled.data$date)
-filled.data$day <- ifelse(days == "Saturday" | days == "Sunday", 
-                           "Weekend", "Weekday")
-filled.data <- aggregate(filled.data$steps,
-                       by=list(data$interval,
-                               data$day),mean)
-names(filled.data) <- c("interval","day","steps")
-xyplot(steps~interval | day, average,type="l",
-       layout=c(1,2),xlab="Interval",ylab = "Number of steps")
-
-tapply(filled.data$steps,filled.data$day,
-       function (x) { c(MINIMUM=min(x),MEAN=mean(x),
-                        MEDIAN=median(x),MAXIMUM=max(x))})
+weekday_or_weekend <- function(date) {
+  day <- weekdays(date)
+  if (day %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"))
+    return("weekday")
+  else if (day %in% c("Saturday", "Sunday"))
+    return("weekend")
+  else
+    stop("invalid date")
+}
+filled.data$date <- as.Date(filled.data$date)
+filled.data$day <- sapply(filled.data$date, FUN=weekday_or_weekend)
+#Let's make a panel plot containing plots of average number of steps taken on weekdays and weekends.
+average <- aggregate(steps ~ interval + day, data=filled.data, mean)
+ggplot(average, aes(interval, steps)) + geom_line() + facet_grid(day ~ .) +
+xlab("5-minute interval") + ylab("Number of steps")  

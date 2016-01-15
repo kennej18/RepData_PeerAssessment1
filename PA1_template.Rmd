@@ -1,6 +1,6 @@
 Reporducible Research: Peer Assessment 1
 
-Loading and preprocessing the data
+Loading and preprocessing of all data
 ```{r}
 library(base)
 library(lattice)
